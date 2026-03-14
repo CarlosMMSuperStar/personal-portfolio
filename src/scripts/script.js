@@ -84,15 +84,31 @@ document.addEventListener("DOMContentLoaded", () => {
     contactForm.addEventListener("submit", (e) => {
       e.preventDefault();
 
-      const formData = new FormData(contactForm);
-      const data = Object.fromEntries(formData.entries());
-      console.log("Datos del formulario:", data);
+      const submitBtn = contactForm.querySelector(".btn-submit");
+      const originalBtnText = submitBtn.textContent;
+      submitBtn.textContent = "Enviando...";
+      submitBtn.disabled = true;
 
-      contactForm.reset();
-      if (formSuccess) {
-        formSuccess.classList.add("show");
-        setTimeout(() => formSuccess.classList.remove("show"), 4000);
-      }
+      const serviceID = "service_qr6cvaf";
+      const templateID = "template_l46zkiv";
+
+      emailjs.sendForm(serviceID, templateID, contactForm)
+        .then(() => {
+          contactForm.reset();
+          if (formSuccess) {
+            formSuccess.classList.add("show");
+            formSuccess.textContent = "¡Mensaje enviado con éxito!";
+            formSuccess.style.color = "var(--neon-teal)";
+            setTimeout(() => formSuccess.classList.remove("show"), 4000);
+          }
+        }, (err) => {
+          alert("Ocurrió un error al enviar el correo. Por favor intenta de nuevo.");
+          console.error("Error de EmailJS:", err);
+        })
+        .finally(() => {
+          submitBtn.textContent = originalBtnText;
+          submitBtn.disabled = false;
+        });
     });
   }
 
